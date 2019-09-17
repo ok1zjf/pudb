@@ -119,7 +119,7 @@ Keys in stack list:
     enter - jump to frame
 
 Keys in breakpoints list:
-    enter - jump to breakpoint
+    enter/space - jump to breakpoint
     b - toggle breakpoint
     d - delete breakpoint
     e - edit breakpoint
@@ -703,6 +703,9 @@ class DebuggerUI(FrameVarInfoKeeper):
                 )
         self.cmdline_on = not CONFIG["hide_cmdline_win"]
         self.cmdline_weight = 1
+        #JF
+        self.cmdline_weight = float(CONFIG["cmdline_weight"])
+        #JF_END
         self.lhs_col = urwid.Pile([
             ("weight", 5, self.source_attr),
             ("weight", self.cmdline_weight if self.cmdline_on else 0,
@@ -1116,6 +1119,10 @@ class DebuggerUI(FrameVarInfoKeeper):
                 bp = self._get_bp_list()[pos]
                 self.show_line(bp.line,
                         FileSourceCodeProvider(self.debugger, bp.file))
+
+#JF
+        self.bp_list.listen(" ", show_breakpoint)
+#JF_END
 
         self.bp_list.listen("enter", show_breakpoint)
         self.bp_list.listen("d", delete_breakpoint)
@@ -1722,6 +1729,10 @@ class DebuggerUI(FrameVarInfoKeeper):
         def set_cmdline_default_size(weight):
             self.cmdline_weight = weight
             self.set_cmdline_size()
+            #JF
+            CONFIG["cmdline_weight"] = weight
+            save_config(CONFIG)
+            #JF_END
 
         def max_cmdline(w, size, key):
             set_cmdline_default_size(5)
